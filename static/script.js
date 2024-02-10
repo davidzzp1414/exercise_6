@@ -23,8 +23,11 @@ const checkPasswordRepeat = () => {
   }
 }
 
+let CURRENT_ROOM = 0;
+
 passwordField.addEventListener("input", checkPasswordRepeat);
 repeatPasswordField.addEventListener("input", checkPasswordRepeat);
+
 
 // TODO:  On page load, read the path and whether the user has valid credentials:
 //        - If they ask for the splash page ("/"), display it
@@ -53,3 +56,55 @@ repeatPasswordField.addEventListener("input", checkPasswordRepeat);
 //        (Hint: https://developer.mozilla.org/en-US/docs/Web/API/setInterval#return_value)
 
 // On page load, show the appropriate page and hide the others
+
+let showOnly = (element) => {
+  CURRENT_ROOM = 0;
+
+  SPLASH.classList.add("hide")
+  PROFILE.classList.add("hide");
+  LOGIN.classList.add("hide");
+  ROOM.classList.add("hide");
+
+  element.classList.remove("hide");
+}
+
+// Show me a new "page"
+let router = () => {
+  let path = window.location.pathname;
+
+
+  if(path == "/") {
+    showOnly(SPLASH);
+
+  }
+  else if(path == "/profile"){
+    showOnly(PROFILE);
+  }
+  else if(path.startsWith("/room/")) {
+    showOnly(ROOM);
+
+    // get the room id
+    CURRENT_ROOM = 4;
+
+    // ...
+  }
+  else if(path == "/login") {
+    showOnly(LOGIN);
+  } 
+  else {
+    // show a 404?
+    console.log("I don't know how we got to "+pathname+", but something has gone wrong");
+  }
+  // ..
+}
+
+window.addEventListener("DOMContentLoaded", router);
+window.addEventListener("popstate", router);
+
+
+setInterval(500, () => {
+  // If we're not in a room, don't query for messages
+  if (CURRENT_ROOM == 0) return;
+
+  fetch("/api/messages/room/"+CURRENT_ROOM)
+});

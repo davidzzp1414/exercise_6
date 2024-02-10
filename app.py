@@ -1,5 +1,6 @@
 import string
 import random
+import time
 from datetime import datetime
 from flask import Flask, g
 from functools import wraps
@@ -52,6 +53,7 @@ def new_user():
 @app.route('/room')
 @app.route('/room/<chat_id>')
 def index(chat_id=None):
+    # time.sleep(4)
     return app.send_static_file('index.html')
 
 @app.errorhandler(404)

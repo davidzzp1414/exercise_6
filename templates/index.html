@@ -6,17 +6,24 @@
   <link href="https://fonts.googleapis.com/css2?family=Rowdies:wght@300;400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
   <link rel="stylesheet" type="text/css" href="/static/style.css"></link>
+  <script>
+    {% if user %}
+    WATCH_PARTY_USER_ID = {{ user.id }};
+    WATCH_PARTY_API_KEY = '{{ user.api_key }}';
+    {% endif %}
+  </script>
 </head>
 <body>
-<div class="splash container"> <!-- TODO: Show me only on "/" -->
+
+<div class="splash container" id="SC"> <!-- TODO: Show me only on "/" -->
   <div class="splashHeader">
     <div class="loginHeader">
       <div class="loggedOut"> <!-- TODO: Show me only to logged-out users -->
-        <a>Login</a>
+        <a href="/login">Login</a>
       </div>
       <div class="loggedIn"> <!-- TODO: Show me only to logged-in users -->
-        <a class="welcomeBack">
-          <span class="username">Welcome back, {{ Username }}!</span>
+        <a class="welcomeBack" href="/profile">
+          <span class="username">Welcome back, {{ user.name }}!</span>
           <span class="material-symbols-outlined md-18">person</span></a>
         </a>
       </div>
@@ -30,27 +37,28 @@
     </div>
     <h1>Watch Party</h1>
     <h2>2</h2>
-    <button class="create">Create a Room</button> <!-- TODO: Show me only to logged-in users -->
-    <button class="signup">Signup</button> <!-- TODO: Show me only to logged-out users -->
+    <button class="create" id="createroom_button">Create a Room</button> <!-- TODO: Show me only to logged-in users -->
+    <button class="signup" id="to_signup">Signup</button> <!-- TODO: Show me only to logged-out users -->
   </div>
 
   <h2>Rooms</h2>
   <div class="rooms">
-    <div class="roomList">
+    <div class="roomList" id="roomList">
       <a>{{room.id}}: <strong>{{room.name}}</strong></a>
     </div>
-    <div class="noRooms">No rooms yet! You get to be first!</div> <!-- TODO: Show me only if roomList is empty -->
+    <div class="noRooms" id="noRooms">No rooms yet! You get to be first!</div> <!-- TODO: Show me only if roomList is empty -->
   </div>
 </div> <!-- end .splash -->
 
-<div class="profile"> <!-- TODO: Show me only on "/profile" -->
+
+<div class="profile" id="profile"> <!-- TODO: Show me only on "/profile" -->
   <div class="header">
-    <h2><a>Watch Party</a></h2>
+    <h2><a href="../">Watch Party</a></h2>
     <h4>2</h4>
     <div class="loginHeader">
       <div class="loggedIn">
         <a class="welcomeBack">
-          <span class="username">{{ Username }}</span>
+          <span class="username">{{ user['name'] }}</span>
           <span class="material-symbols-outlined md-18">person</span></a>
         </a>
       </div>
@@ -61,24 +69,25 @@
       <h2>Welcome to Watch Party!</h2>
       <div class="alignedForm">
         <label for="username">Username: </label>
-        <input name="username" value="{{ username }}">
-        <button>update</button>
+        <input name="username" id="username_field" value="{{ user['name'] }}">
+        <button id="username_button">update</button>
         <label for="password">Password: </label>
-        <input type="password" name="password" value="{{ password }}">
-        <button>update</button>
+        <input type="password" id="password_field" name="password" value="{{ user['password'] }}">
+        <button id="password_button">update</button>
         <label for="repeatPassword">Repeat: </label>
-        <input type="password" name="repeatPassword" value="{{ password }}">
-        <error>Passwords don't match</error>
-        <button class="exit goToSplash">Cool, let's go!</button>
-        <button class="exit logout">Log out</button>
+        <input type="password" id="repeatPassword_field" name="repeatPassword" value="{{ user['password'] }}">
+        <error id="password_error" class="password_error hide">Passwords don't match</error>
+        <button class="exit goToSplash" id="goToSplash_button">Cool, let's go!</button>
+        <button class="exit logout" id="logout_button">Log out</button>
       </div>
     </div>
-  </div> 
+  </div>
 </div>
 
-<div class="login"> <!-- TODO: Show me only on "/login" -->
+
+<div class="login" id="login"> <!-- TODO: Show me only on "/login" -->
   <div class="header">
-    <h2><a>Watch Party</a></h2>
+    <h2><a href="../">Watch Party</a></h2>
     <h4>2</h4>
   </div>
   <div class="clip">
@@ -86,45 +95,46 @@
       <h3>Enter your username and password to log in:</h3>
       <div class="alignedForm login">
         <label for="username">Username</label>
-        <input name="username"></input>
-        <button>Login</button>
+        <input name="username" id="login_username"></input>
+        <button id="login_button">Login</button>
         <label for="password">Password</label>
-        <input type="password" name="password">
+        <input type="password" id="login_password" name="password">
       </div>
-      <div class="failed"> <!-- TODO: Hide me by default. Show only on failed login attempts -->
+      <div class="failed hide" id="login_error"> <!-- TODO: Hide me by default. Show only on failed login attempts -->
         <div class="message">
           Oops, that username and password don't match any of our users!
         </div>
-        <button>Create a new Account</button>
+        <button id="signup_button">Create a new Account</button>
       </div>
     </div>
   </div>
 </div> <!-- end .login -->
 
-<div class="room"> <!-- TODO: Show me only on "/room" (and its subroutes) -->
+
+<div class="room" id="room"> <!-- TODO: Show me only on "/room" (and its subroutes) -->
   <div class="header">
-    <h2><a>Watch Party</a></h2>
+    <h2><a href="../../">Watch Party</a></h2>
     <h4>2</h4>
     <div class="roomDetail">
       <div class="displayRoomName"> <!-- TODO: Show me by default. Hide when user clicks the edit icon below -->
         <h3>
-          Chatting in <strong>{{ room.name }}</strong>
-          <a><span class="material-symbols-outlined md-18">edit</span></a>
+          Chatting in <strong class="roomName">{{ room.name }}</strong>
+          <a id="edit_button"><span class="material-symbols-outlined md-18">edit</span></a>
         </h3>
       </div>
-      <div class="editRoomName"> <!-- TODO: Hide me by default. Show when user clicks the edit icon above -->
+      <div class="editRoomName hide"> <!-- TODO: Hide me by default. Show when user clicks the edit icon above -->
         <h3>
-          Chatting in <input>
-          <button>Update</button>
+          Chatting in <input id="input_field">
+          <button id="display_button">Update</button>
         </h3>
       </div>
       Invite users to this chat at:
-      <a>/rooms/{{ room_id }}</a>
+      <a id="roomLink">/rooms/{{ room['id'] }}</a>
     </div>
     <div class="loginHeader">
       <div class="loggedIn">
         <a class="welcomeBack">
-          <span class="username">{{ Username }}</span>
+          <span class="username">{{ user['name'] }}</span>
           <span class="material-symbols-outlined md-18">person</span></a>
         </a>
       </div>
@@ -136,10 +146,10 @@
       <div class="chat">
         <div class="comment_box">
           <label for="comment">What do you have to say?</label>
-          <textarea name="comment"></textarea>
-          <button type="submit" value="Post">Post</button>
+          <textarea name="comment" id="comment_content"></textarea>
+          <button type="submit" value="Post" id="post_button">Post</button>
         </div>
-        <div class="messages"> <!-- TODO: Replace with the content returned by the API -->
+        <div class="messages" id="messages"> <!-- TODO: Replace with the content returned by the API -->
           <message>
             <author>Mr Chatterworth</author>
             <content>Good evening! And how is everyone feeling?</content>
@@ -173,6 +183,7 @@
     </div> <!-- end .container -->
   </div> <!-- end .clip -->
 </div> <!-- end .room -->
+
 <script src="/static/script.js"> </script>
 </body>
 </html>

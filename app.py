@@ -113,12 +113,16 @@ def page_not_found(e):
 # -------------------------------- API ROUTES ----------------------------------
 # TODO: Create the API
 def verify_api(request, user):
-    key = request.headers.get('x-api-key')
-    db_key = query_db("select api_key from users where id = ?",
-                      [user['id']], one=True)['api_key']
-    if key == db_key:
-        return True
-    else:
+    try:
+        key = request.headers.get('x-api-key')
+        db_key = query_db("select api_key from users where id = ?",
+                        [user['id']], one=True)['api_key']
+        if key == db_key:
+            return True
+        else:
+            print('API authentication failed')
+            return jsonify({"error": "unauthorized API key"}), 406
+    except:
         print('API authentication failed')
         return jsonify({"error": "unauthorized API key"}), 406
 
@@ -154,9 +158,7 @@ select messages.id, users.name as author, messages.body, messages.room_id
 from messages inner join users on messages.user_id = users.id
 where messages.room_id = ?
                         ''', [room_id])
-    #print('author:', messages[0]['author'])
     if messages is None:
-        #print('no message')
         return jsonify('No message in this room yet!')
     else:
         return jsonify([{'author': msg['author'], 'body': msg['body']} for msg in messages])

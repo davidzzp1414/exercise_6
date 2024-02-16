@@ -1,3 +1,7 @@
+/* Moved HTML script to templates to securely pass {{}} parameters instead of using replaces
+ * Everything else is the same as a static HTML page
+ */
+
 // Constants to easily refer to pages
 const SPLASH = document.querySelector(".splash");
 const PROFILE = document.querySelector(".profile");

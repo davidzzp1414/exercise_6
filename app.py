@@ -70,7 +70,6 @@ user_sessions = {}
 @app.route('/')
 def render_SC():
     user = get_user_from_cookie(request)
-    #if user is None: return redirect('/')
     if user is None:
         session['next'] = url_for('render_SC')
     return render_with_error_handling('index.html', user=user, room=None)
@@ -90,7 +89,7 @@ def render_login():
         print('Current session already logged in')
         next_page = session.pop('next', None)
         if next_page:
-            print(str(next_page))
+            #print(str(next_page))
             return redirect(next_page)
         else:
             return redirect('/')
@@ -264,7 +263,6 @@ def signup():
 
 @app.route('/api/login', methods=['POST'])
 def login():
-    #user = get_user_from_cookie(request)
     name = request.json.get('username')
     password = request.json.get('password')
     print(name, password)

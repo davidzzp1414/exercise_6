@@ -292,7 +292,7 @@ function updateRoomName() {
         console.error(error);
     });
 }
-function postMessage() {
+function postNewMessage() {
     const roomId = new URL(window.location.href).pathname.split('/')[2];
     const msg = document.getElementById('comment_content').value;
     const messageData = { room_id: roomId, comment: msg };
@@ -344,8 +344,6 @@ document.querySelector("#display_button").addEventListener('click', (e) => {
 // post message
 if ((new URL(window.location.href).pathname.split('/')[1]).localeCompare('room') == 0){
     document.querySelector("#post_button").addEventListener('click', (e) => {
-        //e.preventDefault();
-        //console.log('postMessage');
-        postMessage();
+        postNewMessage();
     });
 }

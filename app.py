@@ -71,6 +71,8 @@ user_sessions = {}
 def render_SC():
     user = get_user_from_cookie(request)
     #if user is None: return redirect('/')
+    if user is None:
+        session['next'] = url_for('render_SC')
     return render_with_error_handling('index.html', user=user, room=None)
 
 @app.route('/profile')
@@ -134,26 +136,19 @@ select id, name from rooms
 @app.route('/api/new_room', methods=['GET'])
 def create_room():
     user = get_user_from_cookie(request)
-    #if user is None:
-    #    print()
-    #    return redirect('/')
-    #if verify_api(request, user) is not True:
-    #    return verify_api(request, user)
+    if verify_api(request, user) is not True:
+        return verify_api(request, user)
     
     result = query_db('''
 insert into rooms (name) values ('Unamed Room') returning id, name
                         ''', one=True)
     return jsonify({'id': result['id'], 'name': result['name']})
 
-
 @app.route('/api/get_messages/rooms/<int:room_id>', methods=['GET'])
 def get_messages(room_id):
     user = get_user_from_cookie(request)
-    #if user is None:
-    #    print()
-    #    return redirect('/')
-    #if verify_api(request, user) is not True:
-    #    return verify_api(request, user)
+    if verify_api(request, user) is not True:
+        return verify_api(request, user)
     
     messages = query_db('''
 select messages.id, users.name as author, messages.body, messages.room_id
@@ -170,10 +165,8 @@ where messages.room_id = ?
 @app.route('/api/post_message/rooms/<int:room_id>', methods=['POST'])
 def post_message(room_id):
     user = get_user_from_cookie(request)
-    #if user is None:
-    #    return redirect('/')
-    #if verify_api(request, user) is not True:
-    #    return verify_api(request, user)
+    if verify_api(request, user) is not True:
+        return verify_api(request, user)
 
     user_id = request.cookies.get('user_id')
     message = request.json.get('comment')
@@ -190,10 +183,8 @@ insert into messages (user_id, room_id, body) values (?, ?, ?)
 @app.route('/api/update_roomname/<int:room_id>', methods=['POST'])
 def update_roomname(room_id):
     user = get_user_from_cookie(request)
-    #if user is None:
-    #    return redirect('/')
-    #if verify_api(request, user) is not True:
-    #    return verify_api(request, user)
+    if verify_api(request, user) is not True:
+        return verify_api(request, user)
     
     new_name = request.json.get('name')
     if not new_name:
@@ -209,11 +200,8 @@ update rooms set name = ? where id = ?
 @app.route('/api/get_room_name/rooms/<int:room_id>', methods=['GET'])
 def get_roomname(room_id):
     user = get_user_from_cookie(request)
-    #if user is None:
-    #    print()
-    #    return redirect('/')
-    #if verify_api(request, user) is not True:
-    #    return verify_api(request, user)
+    if verify_api(request, user) is not True:
+        return verify_api(request, user)
     
     result = query_db('''
 select name from rooms where id = ?
@@ -226,10 +214,8 @@ select name from rooms where id = ?
 @app.route('/api/user/name', methods=['POST'])
 def update_username():
     user = get_user_from_cookie(request)
-    #if user is None:
-    #    return redirect('/')
-    #if verify_api(request, user) is not True:
-    #    return verify_api(request, user)
+    if verify_api(request, user) is not True:
+        return verify_api(request, user)
     
     user_id = request.cookies.get('user_id')
     new_name = request.json.get('username')
@@ -245,10 +231,8 @@ update users set name = ? where id = ?
 @app.route('/api/user/password', methods=['POST'])
 def update_password():
     user = get_user_from_cookie(request)
-    #if user is None:
-    #    return redirect('/')
-    #if verify_api(request, user) is not True:
-    #    return verify_api(request, user)
+    if verify_api(request, user) is not True:
+        return verify_api(request, user)
     
     user_id = request.cookies.get('user_id')
     name = request.json.get('username')
@@ -305,11 +289,11 @@ select id from users where name = ? and password = ?
 
 @app.route('/api/logout', methods=['GET'])
 def logout():
+    user = get_user_from_cookie(request)
+    if verify_api(request, user) is not True:
+        return verify_api(request, user)
+
     resp = make_response(jsonify({'redirectUrl': url_for('render_SC')}))
     resp.set_cookie('user_id', '')
     resp.set_cookie('user_password', '')
     return resp
-
-
-if __name__ == '__main__':
-    app.run(port=5001)
